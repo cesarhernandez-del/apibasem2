@@ -25,6 +25,8 @@ el proyecto corre sin infraestructura.
   feliz y un caso de error.
 - Rutas específicas antes que rutas con parámetro: `/users/search` debe declararse
   **antes** de `/users/{user_id}`.
+- Validaciones de dominio (rangos, fechas, unicidad) viven en `service.py`,
+  no en los schemas. Pydantic valida forma; el service valida reglas.
 
 ## Cómo ejecutar
 
