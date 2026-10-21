@@ -20,10 +20,9 @@ PRIORITY_MAX = 5
 def create_task(data: TaskCreate) -> Task:
     title = _validate_title(data.title)
     _validate_due_date(data.due_date)
-    # TODO: resto del orden de validación:
-    #   3. priority -> _validate_priority (422)
-    #   4. assignee -> users_repository.get(...) is None -> errors.not_found("usuario", id) (404)
-    #   5. duplicado pendiente del mismo assignee con _normalize_title igual
+    # TODO: 3. priority -> _validate_priority (422)
+    _validate_assignee_exists(data.assignee_id)
+    # TODO: 5. duplicado pendiente del mismo assignee con _normalize_title igual
     #      -> errors.already_exists("tarea", title) (409)
     return repository.add(
         title=title,
@@ -54,6 +53,11 @@ def _validate_priority(priority: int) -> None:
     # TODO: si no está entre PRIORITY_MIN y PRIORITY_MAX (inclusive),
     #   errors.invalid_request con un mensaje que mencione "prioridad".
     raise NotImplementedError
+
+
+def _validate_assignee_exists(assignee_id: int) -> None:
+    if users_repository.get(assignee_id) is None:
+        raise errors.not_found("usuario", assignee_id)
 
 
 def _normalize_title(title: str) -> str:
