@@ -19,8 +19,18 @@ def add(
     assignee_id: int,
     status: TaskStatus,
 ) -> Task:
-    # TODO: construir la Task con _next_id, guardarla en _tasks e incrementar _next_id.
-    raise NotImplementedError
+    global _next_id
+    task = Task(
+        id=_next_id,
+        title=title,
+        due_date=due_date,
+        priority=priority,
+        assignee_id=assignee_id,
+        status=status,
+    )
+    _tasks[task.id] = task
+    _next_id += 1
+    return task
 
 
 def find_by_assignee_and_status(assignee_id: int, status: TaskStatus) -> list[Task]:

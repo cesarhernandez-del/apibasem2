@@ -25,8 +25,14 @@ def create_task(data: TaskCreate) -> Task:
     #   4. assignee -> users_repository.get(...) is None -> errors.not_found("usuario", id) (404)
     #   5. duplicado pendiente del mismo assignee con _normalize_title igual
     #      -> errors.already_exists("tarea", title) (409)
-    #   6. repository.add(..., status=TaskStatus.PENDING) con el título recortado
-    raise NotImplementedError
+    #   6. guardar con el título recortado que devuelve _validate_title
+    return repository.add(
+        title=data.title,
+        due_date=data.due_date,
+        priority=data.priority,
+        assignee_id=data.assignee_id,
+        status=TaskStatus.PENDING,
+    )
 
 
 def _validate_title(title: str) -> str:
