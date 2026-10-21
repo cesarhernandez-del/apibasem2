@@ -3,6 +3,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from main import app
+from tasks import repository as tasks_repository
 from users import repository
 
 
@@ -12,6 +13,14 @@ def _reset_data():
     repository.reset()
     yield
     repository.reset()
+
+
+@pytest.fixture(autouse=True)
+def _reset_tasks():
+    """Cada test arranca con el almacén de tareas vacío."""
+    tasks_repository.reset()
+    yield
+    tasks_repository.reset()
 
 
 @pytest.fixture

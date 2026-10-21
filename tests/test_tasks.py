@@ -8,20 +8,6 @@ from datetime import date, timedelta
 import pytest
 from fastapi.testclient import TestClient
 
-from tasks import repository as tasks_repository
-
-
-@pytest.fixture(autouse=True)
-def _reset_tasks():
-    """Cada test arranca con el almacén de tareas vacío.
-
-    Vive aquí y no en `conftest.py` mientras `tasks` no exista, para no romper la
-    colección de `test_users.py`. Se mueve a `conftest.py` con la implementación.
-    """
-    tasks_repository.reset()
-    yield
-    tasks_repository.reset()
-
 
 def _valid_payload(**overrides: object) -> dict[str, object]:
     payload: dict[str, object] = {
