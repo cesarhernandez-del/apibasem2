@@ -22,8 +22,7 @@ def create_task(data: TaskCreate) -> Task:
     _validate_due_date(data.due_date)
     # TODO: 3. priority -> _validate_priority (422)
     _validate_assignee_exists(data.assignee_id)
-    # TODO: 5. duplicado pendiente del mismo assignee con _normalize_title igual
-    #      -> errors.already_exists("tarea", title) (409)
+    _validate_not_duplicated(title, data.assignee_id)
     return repository.add(
         title=title,
         due_date=data.due_date,
@@ -60,7 +59,14 @@ def _validate_assignee_exists(assignee_id: int) -> None:
         raise errors.not_found("usuario", assignee_id)
 
 
+def _validate_not_duplicated(title: str, assignee_id: int) -> None:
+    """Idempotencia: misma tarea pendiente para el mismo responsable."""
+    normalized_title = _normalize_title(title)
+    pending_tasks = repository.find_by_assignee_and_status(assignee_id, TaskStatus.PENDING)
+    if any(_normalize_title(task.title) == normalized_title for task in pending_tasks):
+        raise errors.already_exists("tarea", title)
+
+
 def _normalize_title(title: str) -> str:
     """Clave de comparación para la idempotencia: minúsculas y espacios colapsados."""
-    # TODO: implementar.
-    raise NotImplementedError
+    return " ".join(title.lower().split())

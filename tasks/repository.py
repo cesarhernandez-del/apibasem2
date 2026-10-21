@@ -34,8 +34,7 @@ def add(
 
 
 def find_by_assignee_and_status(assignee_id: int, status: TaskStatus) -> list[Task]:
-    # TODO: devolver las tareas de `assignee_id` que estén en `status`.
-    raise NotImplementedError
+    return [t for t in _tasks.values() if t.assignee_id == assignee_id and t.status == status]
 
 
 def reset() -> None:
