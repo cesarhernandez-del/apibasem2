@@ -20,7 +20,7 @@ PRIORITY_MAX = 5
 def create_task(data: TaskCreate) -> Task:
     title = _validate_title(data.title)
     _validate_due_date(data.due_date)
-    # TODO: 3. priority -> _validate_priority (422)
+    _validate_priority(data.priority)
     _validate_assignee_exists(data.assignee_id)
     _validate_not_duplicated(title, data.assignee_id)
     return repository.add(
@@ -49,9 +49,10 @@ def _validate_due_date(due_date: date) -> None:
 
 
 def _validate_priority(priority: int) -> None:
-    # TODO: si no está entre PRIORITY_MIN y PRIORITY_MAX (inclusive),
-    #   errors.invalid_request con un mensaje que mencione "prioridad".
-    raise NotImplementedError
+    if not PRIORITY_MIN <= priority <= PRIORITY_MAX:
+        raise errors.invalid_request(
+            f"La prioridad debe estar entre {PRIORITY_MIN} y {PRIORITY_MAX}"
+        )
 
 
 def _validate_assignee_exists(assignee_id: int) -> None:
