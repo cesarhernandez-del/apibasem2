@@ -19,8 +19,8 @@ PRIORITY_MAX = 5
 
 def create_task(data: TaskCreate) -> Task:
     title = _validate_title(data.title)
+    _validate_due_date(data.due_date)
     # TODO: resto del orden de validación:
-    #   2. due_date -> _validate_due_date (422)
     #   3. priority -> _validate_priority (422)
     #   4. assignee -> users_repository.get(...) is None -> errors.not_found("usuario", id) (404)
     #   5. duplicado pendiente del mismo assignee con _normalize_title igual
@@ -45,9 +45,9 @@ def _validate_title(title: str) -> str:
 
 
 def _validate_due_date(due_date: date) -> None:
-    # TODO: si due_date < date.today(), errors.invalid_request con un mensaje
-    #   que mencione "fecha". Hoy es válido.
-    raise NotImplementedError
+    """Hoy es una fecha válida; solo se rechazan fechas pasadas."""
+    if due_date < date.today():
+        raise errors.invalid_request("La fecha de vencimiento no puede ser anterior a hoy")
 
 
 def _validate_priority(priority: int) -> None:
