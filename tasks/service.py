@@ -18,16 +18,15 @@ PRIORITY_MAX = 5
 
 
 def create_task(data: TaskCreate) -> Task:
-    # TODO: orden de validación:
-    #   1. title    -> _validate_title (422)
+    title = _validate_title(data.title)
+    # TODO: resto del orden de validación:
     #   2. due_date -> _validate_due_date (422)
     #   3. priority -> _validate_priority (422)
     #   4. assignee -> users_repository.get(...) is None -> errors.not_found("usuario", id) (404)
     #   5. duplicado pendiente del mismo assignee con _normalize_title igual
     #      -> errors.already_exists("tarea", title) (409)
-    #   6. guardar con el título recortado que devuelve _validate_title
     return repository.add(
-        title=data.title,
+        title=title,
         due_date=data.due_date,
         priority=data.priority,
         assignee_id=data.assignee_id,
@@ -37,9 +36,12 @@ def create_task(data: TaskCreate) -> Task:
 
 def _validate_title(title: str) -> str:
     """Devuelve el título sin espacios en los extremos."""
-    # TODO: strip; si el largo no está entre TITLE_MIN_LENGTH y TITLE_MAX_LENGTH,
-    #   errors.invalid_request con un mensaje que mencione "título".
-    raise NotImplementedError
+    stripped_title = title.strip()
+    if not TITLE_MIN_LENGTH <= len(stripped_title) <= TITLE_MAX_LENGTH:
+        raise errors.invalid_request(
+            f"El título debe tener entre {TITLE_MIN_LENGTH} y {TITLE_MAX_LENGTH} caracteres"
+        )
+    return stripped_title
 
 
 def _validate_due_date(due_date: date) -> None:
