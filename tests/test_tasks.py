@@ -8,6 +8,9 @@ from datetime import date, timedelta
 import pytest
 from fastapi.testclient import TestClient
 
+from tasks import repository as tasks_repository
+from tasks.schemas import Task, TaskStatus
+
 
 def _valid_payload(**overrides: object) -> dict[str, object]:
     payload: dict[str, object] = {
@@ -169,3 +172,35 @@ def test_create_task_mismo_titulo_otro_responsable_devuelve_201(
     body = response.json()
     assert body["id"] == 2
     assert body["assignee_id"] == 2
+
+
+# Integración: ruta -> service -> repository, sin mocks.
+def test_create_task_flujo_completo_persiste_la_tarea_y_no_duplica(
+    client: TestClient,
+) -> None:
+    due_date = date.today() + timedelta(days=3)
+    payload = _valid_payload(
+        title="  Preparar   demo  ",
+        due_date=due_date.isoformat(),
+        priority=4,
+        assignee_id=2,
+    )
+
+    first_response = client.post("/tasks", json=payload)
+    second_response = client.post("/tasks", json=payload)
+
+    assert first_response.status_code == 201
+    assert first_response.json()["id"] == 1
+    assert second_response.status_code == 409
+    assert second_response.json()["detail"] == "tarea ya existe: Preparar   demo"
+    stored_tasks = tasks_repository.find_by_assignee_and_status(2, TaskStatus.PENDING)
+    assert stored_tasks == [
+        Task(
+            id=1,
+            title="Preparar   demo",
+            due_date=due_date,
+            priority=4,
+            assignee_id=2,
+            status=TaskStatus.PENDING,
+        )
+    ]
