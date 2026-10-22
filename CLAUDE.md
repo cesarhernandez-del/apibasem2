@@ -11,6 +11,11 @@ el proyecto corre sin infraestructura.
   - `service.py` — lógica de negocio. Única capa que habla con `repository.py`.
   - `schemas.py` — modelos Pydantic de entrada (`*Create`) y salida.
   - `repository.py` — acceso a datos (aquí, un `dict` en memoria).
+- `tasks/` — tareas asignadas a un usuario. Mismo patrón que `users/`:
+  - `routes.py` — rutas HTTP. Sin lógica de negocio: delega en `service.py`.
+  - `service.py` — lógica de negocio y validaciones de dominio de las tareas.
+  - `schemas.py` — modelos Pydantic de entrada (`TaskCreate`) y salida (`Task`).
+  - `repository.py` — acceso a datos (aquí, un `dict` en memoria).
 - `core/errors.py` — catálogo de errores. Toda respuesta de error sale de aquí.
 - `tests/` — un archivo por recurso: `test_<recurso>.py`.
 
@@ -27,6 +32,12 @@ el proyecto corre sin infraestructura.
   **antes** de `/users/{user_id}`.
 - Validaciones de dominio (rangos, fechas, unicidad) viven en `service.py`,
   no en los schemas. Pydantic valida forma; el service valida reglas.
+- La regla de que `service.py` es la única capa que habla con `repository.py` aplica
+  dentro de cada recurso. Para verificar la existencia de una entidad de otro
+  recurso, el service consulta directamente el repository de ese recurso, no su
+  service. Así la decisión de qué error levantar permanece en el service del
+  recurso que la necesita. Ejemplo: `tasks/service.py` consulta `users.repository` y
+  levanta el `not_found` desde `tasks`.
 
 ## Cómo ejecutar
 
