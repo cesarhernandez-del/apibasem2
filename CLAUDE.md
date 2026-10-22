@@ -31,14 +31,13 @@ el proyecto corre sin infraestructura.
 ## Cómo ejecutar
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+uv venv                            # crea .venv con un Python 3.10 o superior
+uv pip install -r requirements.txt
 
-uvicorn main:app --reload          # API en http://127.0.0.1:8000  ·  /docs para el Swagger
-pytest                             # tests
-pytest --cov=. --cov-report=term-missing   # cobertura
-ruff check .                       # linter
+uv run uvicorn main:app --reload   # API en http://127.0.0.1:8000  ·  /docs para el Swagger
+uv run pytest                      # tests
+uv run pytest --cov=. --cov-report=term-missing   # cobertura
+uv run ruff check .                # linter
 ```
 
 ## Fuera de límites
