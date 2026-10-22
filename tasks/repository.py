@@ -75,7 +75,11 @@ def find_by_assignee_and_status(assignee_id: int, status: TaskStatus) -> list[Ta
         >>> [task.title for task in pending]
         ['Revisar PR']
     """
-    return [t for t in _tasks.values() if t.assignee_id == assignee_id and t.status == status]
+    return [
+        task
+        for task in _tasks.values()
+        if task.assignee_id == assignee_id and task.status == status
+    ]
 
 
 def reset() -> None:
