@@ -1,4 +1,4 @@
-# API de usuarios — guía del proyecto
+# API de usuarios y tareas — guía del proyecto
 
 API REST de ejemplo (FastAPI + Pydantic v2). Almacén en memoria, sin base de datos:
 el proyecto corre sin infraestructura.
@@ -10,6 +10,11 @@ el proyecto corre sin infraestructura.
   - `routes.py` — rutas HTTP. Sin lógica de negocio: delega en `service.py`.
   - `service.py` — lógica de negocio. Única capa que habla con `repository.py`.
   - `schemas.py` — modelos Pydantic de entrada (`*Create`) y salida.
+  - `repository.py` — acceso a datos (aquí, un `dict` en memoria).
+- `tasks/` — tareas asignadas a un usuario. Mismo patrón que `users/`:
+  - `routes.py` — rutas HTTP. Sin lógica de negocio: delega en `service.py`.
+  - `service.py` — lógica de negocio y validaciones de dominio de las tareas.
+  - `schemas.py` — modelos Pydantic de entrada (`TaskCreate`) y salida (`Task`).
   - `repository.py` — acceso a datos (aquí, un `dict` en memoria).
 - `core/errors.py` — catálogo de errores. Toda respuesta de error sale de aquí.
 - `tests/` — un archivo por recurso: `test_<recurso>.py`.
@@ -25,18 +30,25 @@ el proyecto corre sin infraestructura.
   feliz y un caso de error.
 - Rutas específicas antes que rutas con parámetro: `/users/search` debe declararse
   **antes** de `/users/{user_id}`.
+- Validaciones de dominio (rangos, fechas, unicidad) viven en `service.py`,
+  no en los schemas. Pydantic valida forma; el service valida reglas.
+- La regla de que `service.py` es la única capa que habla con `repository.py` aplica
+  dentro de cada recurso. Para verificar la existencia de una entidad de otro
+  recurso, el service consulta directamente el repository de ese recurso, no su
+  service. Así la decisión de qué error levantar permanece en el service del
+  recurso que la necesita. Ejemplo: `tasks/service.py` consulta `users.repository` y
+  levanta el `not_found` desde `tasks`.
 
 ## Cómo ejecutar
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+uv venv                            # crea .venv con un Python 3.10 o superior
+uv pip install -r requirements.txt
 
-uvicorn main:app --reload          # API en http://127.0.0.1:8000  ·  /docs para el Swagger
-pytest                             # tests
-pytest --cov=. --cov-report=term-missing   # cobertura
-ruff check .                       # linter
+uv run uvicorn main:app --reload   # API en http://127.0.0.1:8000  ·  /docs para el Swagger
+uv run pytest                      # tests
+uv run pytest --cov=. --cov-report=term-missing   # cobertura
+uv run ruff check .                # linter
 ```
 
 ## Fuera de límites
