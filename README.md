@@ -90,6 +90,18 @@ Respuesta `201 Created`:
 | 404 | `assignee_id` no corresponde a ningún usuario | `"usuario no encontrado: <assignee_id>"` |
 | 409 | El responsable ya tiene una tarea `pending` con el mismo título normalizado | `"tarea ya existe: <title>"` |
 
+### Comportamiento conocido
+
+- **Espacios internos del título:** el título se guarda tal como lo escribió el
+  usuario, recortado en los extremos pero conservando los espacios internos
+  (`"  Preparar   demo "` se guarda como `"Preparar   demo"`). La comparación de
+  duplicados sí los colapsa.
+- **Zona horaria de `due_date`:** la validación de fecha usa la fecha local del
+  servidor; no hay zona horaria de referencia definida.
+- **Dos formatos de 422:** `detail` es texto cuando el error viene del catálogo de
+  dominio (`core/errors.py`), y una lista de objetos cuando lo genera la validación
+  de Pydantic.
+
 ## Tests y calidad
 
 ```bash
