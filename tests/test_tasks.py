@@ -174,6 +174,32 @@ def test_create_task_mismo_titulo_otro_responsable_devuelve_201(
     assert body["assignee_id"] == 2
 
 
+# Errores de forma: los rechaza Pydantic antes de llegar al service.
+def _payload_without(field: str) -> dict[str, object]:
+    payload = _valid_payload()
+    del payload[field]
+    return payload
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        _payload_without("title"),
+        _valid_payload(priority="alta"),
+        _valid_payload(due_date="30-02-2026"),
+        _valid_payload(assignee_id="uno"),
+    ],
+    ids=["falta_title", "priority_texto", "due_date_formato_invalido", "assignee_id_texto"],
+)
+def test_create_task_error_de_forma_devuelve_422_con_detail_lista(
+    client: TestClient, payload: dict[str, object]
+) -> None:
+    response = client.post("/tasks", json=payload)
+
+    assert response.status_code == 422
+    assert isinstance(response.json()["detail"], list)
+
+
 # Integración: ruta -> service -> repository, sin mocks.
 def test_create_task_flujo_completo_persiste_la_tarea_y_no_duplica(
     client: TestClient,
