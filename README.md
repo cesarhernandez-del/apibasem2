@@ -1,6 +1,6 @@
 # m2-api-base
 
-API REST de usuarios usada como base en el **Módulo 2 · Clase 1 — Generación de código con IA**.
+API REST de usuarios y tareas usada como base en el **Módulo 2 · Clase 1 — Generación de código con IA**.
 
 Es un proyecto pequeño pero completo: tiene convenciones, capas separadas, catálogo
 de errores y una suite de tests que pasa. Le falta **una** feature — la que vas a

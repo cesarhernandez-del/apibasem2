@@ -1,4 +1,4 @@
-# API de usuarios — guía del proyecto
+# API de usuarios y tareas — guía del proyecto
 
 API REST de ejemplo (FastAPI + Pydantic v2). Almacén en memoria, sin base de datos:
 el proyecto corre sin infraestructura.
